@@ -364,6 +364,16 @@ class Fixture extends \lithium\data\Schema {
 		}
 		return $fields;
 	}
+    
+    public function getFactoryRecords()
+    {
+        return $this->_records;
+    }
+    
+    public function getReferencedModel()
+    {
+        return $this->_model;
+    }
 }
 
 ?>
