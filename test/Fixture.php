@@ -9,6 +9,7 @@
 namespace li3_fixtures\test;
 
 use lithium\core\ConfigException;
+use lithium\core\Libraries;
 
 class Fixture extends \lithium\data\Schema {
 
@@ -17,19 +18,19 @@ class Fixture extends \lithium\data\Schema {
 	 *
 	 * @var array
 	 */
-	protected $_classes = array(
+	protected $_classes = [
 		'connections' => 'lithium\data\Connections',
 		'schema' => 'lithium\data\Schema',
 		'query' => 'lithium\data\model\Query'
-	);
+	];
 	/**
 	 * Auto configuration properties.
 	 *
 	 * @var array
 	 */
-	protected $_autoConfig = array(
+	protected $_autoConfig = [
 		'connection', 'source', 'locked', 'model', 'fields' => 'merge', 'meta', 'records'
-	);
+	];
 
 	/**
 	 * The connection name
@@ -66,14 +67,14 @@ class Fixture extends \lithium\data\Schema {
 	 *
 	 * @var array
 	 */
-	protected $_fields = array();
+	protected $_fields = [];
 
 	/**
 	 * Altered fields definition
 	 *
 	 * @var array
 	 */
-	protected $_alteredFields = array();
+	protected $_alteredFields = [];
 
 	/**
 	 * Metas for the fixture.
@@ -95,7 +96,7 @@ class Fixture extends \lithium\data\Schema {
 	 *
 	 * @var array
 	 */
-	protected $_meta = array();
+	protected $_meta = [];
 
 	/**
 	 * The records should be an array of rows. Each row should have values keyed by
@@ -113,7 +114,7 @@ class Fixture extends \lithium\data\Schema {
 	 *
 	 * @var array
 	 */
-	protected $_records = array();
+	protected $_records = [];
 
 	/**
 	 * If `true` only fields in `Fixture::_fields` are allowed in records (kind of whitelist).
@@ -129,8 +130,8 @@ class Fixture extends \lithium\data\Schema {
 	 * @see lithium\core\Object::__construct()
 	 * @param array $config The configuration options
 	 */
-	public function __construct($config = array()) {
-		parent::__construct($config + array('alters' => array()));
+	public function __construct($config = []) {
+		parent::__construct($config + ['alters' => []]);
 	}
 
 	/**
@@ -154,7 +155,7 @@ class Fixture extends \lithium\data\Schema {
 		$db = $connections::get($this->_connection);
 
 		if ($model = $this->_model) {
-			$model::config(array('meta' => array('connection' => $this->_connection)));
+			$model::config(['meta' => ['connection' => $this->_connection]]);
 			$this->_source = $this->_source ? : $model::meta('source');
 			$this->_locked = ($this->_locked === null) ? $model::meta('locked') : $this->_locked;
 		}
@@ -213,11 +214,11 @@ class Fixture extends \lithium\data\Schema {
 		$return = true;
 
 		if ($db::enabled('schema')) {
-			$schema = $this->_instance('schema', array(
+			$schema = Libraries::instance(null, 'schema', [
 				'fields' => $this->_alteredFields,
 				'meta' => $this->_meta,
 				'locked' => $this->_locked
-			));
+			], $this->_classes);
 
 			$return = $db->createSchema($this->_source, $schema);
 		}
@@ -260,7 +261,7 @@ class Fixture extends \lithium\data\Schema {
 	 * @param boolean $alter If true, the `$record` will be altered according the alter rules.
 	 * @return boolean Returns `true` on success `false` otherwise.
 	 */
-	public function populate(array $record = array(), $alter = true) {
+	public function populate(array $record = [], $alter = true) {
 		if (!$record) {
 			return true;
 		}
@@ -270,10 +271,10 @@ class Fixture extends \lithium\data\Schema {
 		if ($this->_locked) {
 			$data = array_intersect_key($data, $this->_alteredFields);
 		}
-		$options = array(
-			'type' => 'create', 'source' => $this->_source, 'data' => array('data' => $data)
-		);
-		$query = $this->_instance('query', $options);
+		$options = [
+			'type' => 'create', 'source' => $this->_source, 'data' => ['data' => $data]
+		];
+		$query = Libraries::instance(null, 'query', $options, $this->_classes);
 		return $db->create($query);
 	}
 
@@ -292,12 +293,12 @@ class Fixture extends \lithium\data\Schema {
 				return true;
 			}
 		}
-		$options = array('source' => $this->_source);
-		$query = $this->_instance('query', $options);
+		$options = ['source' => $this->_source];
+		$query = Libraries::instance(null, 'query', $options, $this->_classes);
 		return $db->delete($query);
 	}
 
-	public function alter($mode = null, $key = null, $value = array()) {
+	public function alter($mode = null, $key = null, $value = []) {
 		if ($mode === null) {
 			return $this->_config['alters'];
 		}
@@ -316,8 +317,8 @@ class Fixture extends \lithium\data\Schema {
 	 * @param array $record The record array.
 	 * @return array Returns the modified record.
 	 */
-	public function _alterRecord(array $record = array()) {
-		$result = array();
+	public function _alterRecord(array $record = []) {
+		$result = [];
 		foreach ($record as $name => $value) {
 			if (isset($this->_config['alters']['change'][$name])) {
 				$alter = $this->_config['alters']['change'][$name];
@@ -339,7 +340,7 @@ class Fixture extends \lithium\data\Schema {
 		return $result;
 	}
 
-	public function _alterFields(array $fields = array()) {
+	public function _alterFields(array $fields = []) {
 		foreach ($this->_config['alters'] as $mode => $values) {
 			foreach ($values as $key => $value) {
 				switch($mode) {
@@ -364,16 +365,6 @@ class Fixture extends \lithium\data\Schema {
 		}
 		return $fields;
 	}
-    
-    public function getFactoryRecords()
-    {
-        return $this->_records;
-    }
-    
-    public function getReferencedModel()
-    {
-        return $this->_model;
-    }
 }
 
 ?>

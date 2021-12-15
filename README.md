@@ -1,29 +1,33 @@
-# Fixtures managment
+# Fixtures Management for the li₃ framework.
+
+This plugin provide fixtures managment. Should work with any kind of `Source`
+adapters. The fixture class support the following datasource's hints:
+
+- If `Source::enabled('schema')` returns `true`, the `Fixture` manage schema
+  (i.e create/drop) via `Source::createSchema()` & `Source::dropSchema()`.
+
+- If `Source::enabled('sources')` returns `true`, the `Fixture` allow soft drop
+  (i.e safe options).
 
 ## Installation
 
-Checkout the code to either of your library directories:
+The preferred installation method is via composer. You can add
+the library as a dependency via:
 
 ```
-cd libraries
-git clone git@github.com:UnionOfRAD/li3_fixtures.git
+composer require unionofrad/li3_fixtures
 ```
 
-Include the library in in your `/app/config/bootstrap/libraries.php`
+li₃ plugins must be registered within your application bootstrap phase 
+as they use a different (faster) autoloader. 
 
+```php
+Libraries::add('li3_fixtures')
 ```
-Libraries::add('li3_fixtures');
-```
 
-## Presentation
-
-This plugin provide fixtures managment. Should work with any kind of `Source` adapaters.
-
-## Note
-
-The fixture class support the following datasource's hints:
-- If `Source::enabled('schema')` returns `true`, the `Fixture` manage schema (i.e create/drop) via `Source::createSchema()` & `Source::dropSchema()`.
-- If `Source::enabled('sources')` returns `true`, the `Fixture` allow soft drop (i.e safe options).
+The official manual has more information on 
+[how to register the plugin](http://li3.me/docs/manual/installation/plugins.md) 
+with the app or use alternative installation methods (i.e. via GIT).
 
 ## API
 
@@ -49,7 +53,7 @@ use li3_fixtures\test\Fixture;
 class SampleTest extends \lithium\test\Unit {
 
 	public function testFixture() {
-		$fixture = new Fixture(array(
+		$fixture = new Fixture([
 			'connection' => 'lithium_mysql_test',
 			'source' => 'contacts',
 			'fields' => array(
@@ -60,11 +64,11 @@ class SampleTest extends \lithium\test\Unit {
 				array('id' => 1, 'name' => 'Nate'),
 				array('id' => 2, 'name' => 'Gwoo')
 			)
-		));
+		]);
 
 		$fixture->save();
 
-		$fixture->populate(array('id' => 3, 'name' => 'Mehlah'));
+		$fixture->populate(['id' => 3, 'name' => 'Mehlah']);
 
 		$fixture->drop();
 	}
@@ -87,14 +91,14 @@ class ContactsFixture extends \li3_fixtures\test\Fixture {
 	protected $_model = 'app\models\Contacts';
 
 	protected $_fields = array(
-		'id' => array('type' => 'id'),
-		'name' => array('type' => 'string')
+		'id' => ['type' => 'id'],
+		'name' => ['type' => 'string']
 	);
 
-	protected $_records = array(
-		array('id' => 1, 'name' => 'Nate'),
-		array('id' => 2, 'name' => 'Gwoo')
-	);
+	protected $_records = [
+		array['id' => 1, 'name' => 'Nate'],
+		array['id' => 2, 'name' => 'Gwoo']
+	];
 }
 ?>
 ```
@@ -125,8 +129,8 @@ use app\models\Images;
 class Sample2Test extends \lithium\test\Unit {
 
 	public function setUp() {
-		Fixtures::config(array(
-			'db' => array(
+		Fixtures::config([
+			'db' => [
 				'adapter' => 'Connection',
 				'connection' => 'lithium_mysql_test',
 				'fixtures' => array(
@@ -134,8 +138,8 @@ class Sample2Test extends \lithium\test\Unit {
 					'images' => 'app\tests\fixture\ImagesFixture'
 					// and so on...
 				)
-			)
-		));
+			]
+		]);
 		Fixtures::save('db');
 	}
 
@@ -161,7 +165,7 @@ Example:
 <?php
 Fixtures::save('db', array('contacts'));
 //The line bellow is not needed since Contacts have been configured by ContactsFixture.
-Contacts::config(array('meta' => array('connection' => 'lithium_mysql_test')));
+Contacts::config(['meta' => ['connection' => 'lithium_mysql_test']]);
 var_export(Contacts::find('all')->data());
 ?>
 ```
@@ -174,31 +178,31 @@ You can alter `Fixture`'s instance before creating it like the following use cas
 
 ```php
 <?php
-$fixture->alter('add', array(
+$fixture->alter('add', [
 	'name' => 'enabled',
 	'type' => 'boolean'
-); //Add a field
+]); //Add a field
 
-$fixture->alter('change', array(
+$fixture->alter('change', [
 	'name' => 'published',
 	'value' => function ($val) {
 		return new MongoDate(strtotime($val));
 	}
-); //Simple cast for fixture's values according the closure
+]); //Simple cast for fixture's values according the closure
 
-$fixture->alter('change', array(
+$fixture->alter('change', [
 	'name' => 'id',
 	'to' => '_id',
 	'value' => function ($val) {
 		return new MongoId('4c3628558ead0e594' . (string) ($val + 1000000));
 	}
-); //Renaming the field 'id' to '_id' + cast fixture's values according the closure
+]); //Renaming the field 'id' to '_id' + cast fixture's values according the closure
 
-$fixture->alter('change', array(
+$fixture->alter('change', [
 	'name' => 'bigintger',
 	'type' => 'integer',
 	'use' => 'bigint' //use db specific type
-); //Modifing a field type
+]); //Modifing a field type
 
 $fixture->alter('drop', 'bigintger'); //Simply dropping a field
 ?>
@@ -214,5 +218,3 @@ $fixture = Fixtures::get('db', 'contacts');
 ?>
 ```
 
-## Build status
-[![Build Status](https://secure.travis-ci.org/UnionOfRAD/li3_fixtures.png?branch=master)](http://travis-ci.org/UnionOfRAD/li3_fixtures)
