@@ -8,7 +8,7 @@
 
 namespace li3_fixtures\tests\cases\test\fixtures\adapter;
 
-use li3_fixtures\extensions\adapter\test\fixtures\Connection;
+use li3_fixtures\test\fixtures\adapter\Connection;
 
 class ConnectionTest extends \lithium\test\Unit {
 
@@ -17,58 +17,60 @@ class ConnectionTest extends \lithium\test\Unit {
 	protected $_adapter;
 
 	public function setUp() {
-		$this->_adapter = new Connection(array(
+		$this->_adapter = new Connection([
 			'connection' => $this->_connection,
-			'alters' => array(
-				'add' => array('custom' => array('type' => 'string'))
-			),
-			'fixtures' => array(
+			'alters' => [
+				'add' => ['custom' => ['type' => 'string']]
+			],
+			'fixtures' => [
 				'gallery' => 'li3_fixtures\tests\mocks\core\MockLogCall',
 				'image' => 'li3_fixtures\tests\mocks\core\MockLogCall'
-			)
-		));
+			]
+		]);
 	}
 
 	public function testInitMissingConnection() {
-		$this->expectException("The `'connection'` option must be set.");
-		new Connection();
+		$this->assertException("The `'connection'` option must be set.", function() {
+			new Connection();
+		});
 	}
 
 	public function testInstantiateFixture() {
 		$callable = $this->_adapter->get('gallery');
-		$expected = array(
+		$expected = [
 			'connection' => $this->_connection,
-			'alters' => array('add' => array('custom' => array('type' => 'string')))
-		);
+			'alters' => ['add' => ['custom' => ['type' => 'string']]]
+		];
 		$this->assertEqual($expected, $callable->construct[0]);
 	}
 
 	public function testMissingFixture() {
-		$this->expectException("Undefined fixture named: `foo`.");
-		$this->_adapter->get('foo');
+		$this->assertException("Undefined fixture named: `foo`.", function() {
+			$this->_adapter->get('foo');
+		});
 	}
 
 	public function testCreate() {
 		$this->_adapter->create();
 
 		$callable = $this->_adapter->get('image');
-		$expected = array('method' => 'create', 'params' => array(true));
+		$expected = ['method' => 'create', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[0]);
 
 		$callable = $this->_adapter->get('gallery');
-		$expected = array('method' => 'create', 'params' => array(true));
+		$expected = ['method' => 'create', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[0]);
 	}
 
 	public function testCreateSingle() {
-		$this->_adapter->create(array('gallery'));
+		$this->_adapter->create(['gallery']);
 
 		$callable = $this->_adapter->get('image');
-		$expected = array('method' => 'create', 'params' => array(true));
+		$expected = ['method' => 'create', 'params' => [true]];
 		$this->assertEqual(0, count($callable->call));
 
 		$callable = $this->_adapter->get('gallery');
-		$expected = array('method' => 'create', 'params' => array(true));
+		$expected = ['method' => 'create', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[0]);
 	}
 
@@ -77,35 +79,35 @@ class ConnectionTest extends \lithium\test\Unit {
 		$this->_adapter->drop();
 
 		$callable = $this->_adapter->get('image');
-		$expected = array('method' => 'create', 'params' => array(true));
+		$expected = ['method' => 'create', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[0]);
 
 		$callable = $this->_adapter->get('image');
-		$expected = array('method' => 'drop', 'params' => array(true));
+		$expected = ['method' => 'drop', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[1]);
 
 		$callable = $this->_adapter->get('gallery');
-		$expected = array('method' => 'create', 'params' => array(true));
+		$expected = ['method' => 'create', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[0]);
 
 		$callable = $this->_adapter->get('gallery');
-		$expected = array('method' => 'drop', 'params' => array(true));
+		$expected = ['method' => 'drop', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[1]);
 	}
 
 	public function testDropLoadedFixtureOnly() {
-		$this->_adapter->create(array('gallery'));
+		$this->_adapter->create(['gallery']);
 		$this->_adapter->drop();
 
 		$callable = $this->_adapter->get('image');
 		$this->assertEqual(0, count($callable->call));
 
 		$callable = $this->_adapter->get('gallery');
-		$expected = array('method' => 'create', 'params' => array(true));
+		$expected = ['method' => 'create', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[0]);
 
 		$callable = $this->_adapter->get('gallery');
-		$expected = array('method' => 'drop', 'params' => array(true));
+		$expected = ['method' => 'drop', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[1]);
 	}
 
@@ -114,35 +116,35 @@ class ConnectionTest extends \lithium\test\Unit {
 		$this->_adapter->truncate();
 
 		$callable = $this->_adapter->get('image');
-		$expected = array('method' => 'create', 'params' => array(true));
+		$expected = ['method' => 'create', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[0]);
 
 		$callable = $this->_adapter->get('image');
-		$expected = array('method' => 'truncate', 'params' => array());
+		$expected = ['method' => 'truncate', 'params' => []];
 		$this->assertEqual($expected, $callable->call[1]);
 
 		$callable = $this->_adapter->get('gallery');
-		$expected = array('method' => 'create', 'params' => array(true));
+		$expected = ['method' => 'create', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[0]);
 
 		$callable = $this->_adapter->get('gallery');
-		$expected = array('method' => 'truncate', 'params' => array());
+		$expected = ['method' => 'truncate', 'params' => []];
 		$this->assertEqual($expected, $callable->call[1]);
 	}
 
 	public function testTruncateLoadedFixtureOnly() {
-		$this->_adapter->create(array('gallery'));
+		$this->_adapter->create(['gallery']);
 		$this->_adapter->truncate();
 
 		$callable = $this->_adapter->get('image');
 		$this->assertEqual(0, count($callable->call));
 
 		$callable = $this->_adapter->get('gallery');
-		$expected = array('method' => 'create', 'params' => array(true));
+		$expected = ['method' => 'create', 'params' => [true]];
 		$this->assertEqual($expected, $callable->call[0]);
 
 		$callable = $this->_adapter->get('gallery');
-		$expected = array('method' => 'truncate', 'params' => array());
+		$expected = ['method' => 'truncate', 'params' => []];
 		$this->assertEqual($expected, $callable->call[1]);
 	}
 }
