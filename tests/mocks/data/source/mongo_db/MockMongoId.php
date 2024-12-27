@@ -8,16 +8,14 @@
 
 namespace li3_fixtures\tests\mocks\data\source\mongo_db;
 
-class MockMongoId {
+class MockMongoId implements \Stringable {
 
-	protected $_name;
+	public function __construct(protected $_name)
+    {
+    }
 
-	public function __construct($name) {
-		$this->_name = $name;
-	}
-
-	public function __toString() {
-		return $this->_name;
+	public function __toString(): string {
+		return (string) $this->_name;
 	}
 }
 

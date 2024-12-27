@@ -157,7 +157,7 @@ class Fixture extends \lithium\data\Schema {
 		if ($model = $this->_model) {
 			$model::config(['meta' => ['connection' => $this->_connection]]);
 			$this->_source = $this->_source ? : $model::meta('source');
-			$this->_locked = ($this->_locked === null) ? $model::meta('locked') : $this->_locked;
+			$this->_locked ??= $model::meta('locked');
 		}
 
 		if ($this->_locked === null) {
