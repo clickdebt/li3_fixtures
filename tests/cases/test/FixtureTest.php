@@ -167,9 +167,7 @@ class FixtureTest extends \lithium\test\Unit {
 					'type' => 'string',
 					'length' => '24',
 					'to' => '_id',
-					'value' => function ($val) {
-						return new MockMongoId('4c3628558ead0e594' . (string) ($val + 1000000));
-					}
+					'value' => fn($val) => new MockMongoId('4c3628558ead0e594' . (string) ($val + 1000000))
 				],
 				'name' => [
 					'to' => 'firstname'
@@ -265,9 +263,7 @@ class FixtureTest extends \lithium\test\Unit {
 			'type' => 'string',
 			'length' => '24',
 			'to' => '_id',
-			'value' => function ($val) {
-				return new MockMongoId('4c3628558ead0e594' . (string) ($val + 1000000));
-			}
+			'value' => fn($val) => new MockMongoId('4c3628558ead0e594' . (string) ($val + 1000000))
 		]);
 		$fixture->alter('change', 'name', ['to' => 'firstname']);
 		$fixture->alter('drop', 'useless');

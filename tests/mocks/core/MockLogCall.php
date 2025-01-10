@@ -36,13 +36,13 @@ class MockLogCall extends \lithium\core\Object {
 	public function __call($method, $params = []) {
 		$call = compact('method', 'params');
 		$this->call[] = $call;
-		return isset($this->return[$method]) ? $this->return[$method]: $call;
+		return $this->return[$method] ?? $call;
 	}
 
 	public static function __callStatic($method, $params) {
 		$callStatic = compact('method', 'params');
 		static::$callStatic[] = $callStatic;
-		return isset(static::$returnStatic[$method]) ? static::$returnStatic[$method]: $callStatic;
+		return static::$returnStatic[$method] ?? $callStatic;
 	}
 
 	public function __get($value) {
